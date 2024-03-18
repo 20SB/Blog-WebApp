@@ -1,13 +1,15 @@
+import { Route, Routes } from "react-router-dom";
 import "./App.css";
+import { AuthPage } from "./pages/AuthPage";
+import { HomePage } from "./pages/HomePage";
 
 function App() {
     return (
         <div className="App">
-            <header className="App-header">
-                <p>
-                    Edit <code>src/App.js</code> and save to reload.
-                </p>
-            </header>
+            <Routes>
+                <Route path="/" element={<AuthPage />} exact />
+                <Route path="/home" element={<HomePage />} />
+            </Routes>
         </div>
     );
 }
