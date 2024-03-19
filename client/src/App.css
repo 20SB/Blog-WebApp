@@ -1,0 +1,28 @@
+@import url("https://fonts.googleapis.com/css2?family=Podkova:wght@400..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@300&display=swap");
+
+.App {
+    min-height: 100vh;
+    display: flex;
+    background: #ff0042;
+    background-size: cover;
+    background-position: bottom;
+    background-attachment: fixed;
+    flex-direction: column;
+}
+::-webkit-scrollbar {
+    width: 0px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgb(136, 136, 136, 0.281);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+#navigator a.active {
+    color: red;
+    border-bottom: 2px solid #ff0042;
+}
