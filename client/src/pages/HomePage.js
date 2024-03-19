@@ -4,82 +4,36 @@ import axios from "axios";
 import { AuthState } from "../context/AuthContext";
 import useGlobalToast from "../GlobalFunctions/toast";
 import { useNavigate } from "react-router-dom";
-
+import InfiniteScroll from "react-infinite-scroll-component"; // Import InfiniteScroll component
+const style = {
+    height: 30,
+    border: "1px solid green",
+    margin: 6,
+    padding: 8,
+};
 export const HomePage = () => {
     const [posts, setPosts] = useState([]); // State to store posts
     const [loading, setLoading] = useState(false); // State to track loading status
     const [page, setPage] = useState(1); // State to track current page number
+    const [hasMore, setHasMore] = useState(true);
 
     const { user, serverUrl } = AuthState();
     const toast = useGlobalToast();
-
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (!user) {
-            navigate("/");
+    const [items, setItems] = useState(Array.from({ length: 20 }));
+    const fetchMoreData = () => {
+        if (items.length >= 500) {
+            setHasMore(false);
             return;
         }
-        // Function to fetch posts from the backend
-        const fetchPosts = async () => {
-            setLoading(true);
-
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${user.token}`,
-                },
-            };
-
-            axios
-                .get(
-                    `${serverUrl}/blog/all?page=${page}&limit=2`,
-                    config
-                )
-                .then(({ data }) => {
-                    console.log("post", data);
-                    let newPosts = data.blogs;
-                    setPosts((prevPosts) => [
-                        ...prevPosts,
-                        ...newPosts,
-                    ]); // Append new posts to existing posts
-                    // setPage((prevPage) => prevPage + 1); // Increment page number for the next fetch
-                })
-                .catch((error) => {
-                    toast.error(
-                        "Error",
-                        error.response
-                            ? error.response.data.message
-                            : "Something Went Wrong"
-                    );
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
-        };
-
-        // Fetch posts when the component mounts
-        fetchPosts();
-    }, [page]); // Fetch posts whenever the page state changes
-
-    // Function to handle scrolling
-    const handleScroll = (event) => {
-        const { scrollTop, clientHeight, scrollHeight } =
-            event.target; // Access the scroll properties of the scrollable box
-
-        console.log("scrollTop", scrollTop);
-        console.log("clientHeight", clientHeight);
-        console.log("scrollHeight", scrollHeight);
-
-        if (
-            scrollTop + clientHeight >= scrollHeight - 5 &&
-            !loading
-        ) {
-            console.log(
-                "change page***************************************************************************"
+        // a fake async api call like which sends
+        // 20 more records in .5 secs
+        setTimeout(() => {
+            setItems((prevItems) =>
+                prevItems.concat(Array.from({ length: 20 }))
             );
-            // Load more posts if user scrolls to the bottom of the box and not already loading
-            setPage((prevPage) => prevPage + 1);
-        }
+        }, 5000);
     };
 
     return (
@@ -109,27 +63,58 @@ export const HomePage = () => {
                     borderWidth={"1px"}
                     boxSizing="border-box"
                     overflowY={"auto"}
-                    onScroll={handleScroll}
                 >
-                    {/* Render posts */}
-                    {posts.map((post) => (
-                        <Box key={post.id} width={"30%"} bg={"cyan"}>
-                            <Avatar
-                                name={post.writer && post.writer.name}
-                                src={post.writer && post.writer.dp}
-                                size="md"
-                            />
-                            <Text>
-                                {post.writer && post.writer.name}
-                            </Text>
-                            <Text>{post.createdAt}</Text>
-                            <Text>{post.updatedAt}</Text>
-                            <Text>{post.title}</Text>
-                            <Text>{post.content}</Text>
-                        </Box>
-                    ))}
-                    {/* Loading indicator */}
-                    {loading && <p>Loading...</p>}
+                    {/* <InfiniteScroll
+                        dataLength={posts.length}
+                        next={fetchMoreData}
+                        hasMore={true}
+                        loader={<p>Loading...</p>}
+                        endMessage={<p>Yay! You have seen it all</p>}
+                    >
+                        {posts.map((post, index) => (
+                            <Box
+                                key={index}
+                                width={"30%"}
+                                bg={"cyan"}
+                            >
+                                <Avatar
+                                    name={
+                                        post.writer &&
+                                        post.writer.name
+                                    }
+                                    src={
+                                        post.writer && post.writer.dp
+                                    }
+                                    size="md"
+                                />
+                                <Text>
+                                    {post.writer && post.writer.name}
+                                </Text>
+                                <Text>{post.createdAt}</Text>
+                                <Text>{post.updatedAt}</Text>
+                                <Text>{post.title}</Text>
+                                <Text>{post.content}</Text>
+                            </Box>
+                        ))}
+                    </InfiniteScroll> */}
+                    <InfiniteScroll
+                        dataLength={items.length}
+                        next={fetchMoreData}
+                        hasMore={hasMore}
+                        loader={<h4>Loading...</h4>}
+                        height={400}
+                        endMessage={
+                            <p style={{ textAlign: "center" }}>
+                                <b>Yay! You have seen it all</b>
+                            </p>
+                        }
+                    >
+                        {items.map((_, index) => (
+                            <div style={style} key={index}>
+                                div - #{index}
+                            </div>
+                        ))}
+                    </InfiniteScroll>
                 </Box>
             </Box>
         </div>
