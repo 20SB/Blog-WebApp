@@ -11,17 +11,23 @@ const AuthContext = createContext();
 const AuthContextProvider = ({ children }) => {
     const serverUrl = process.env.REACT_APP_BACKEND_URL;
     const [user, setUser] = useState();
+    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
         const userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
-        setUser(userInfo);
-
-        if (!userInfo) {
+        setIsLoading(false);
+        if (userInfo) {
+            setUser(userInfo);
+        } else {
             navigate("/");
         }
     }, [navigate]);
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <AuthContext.Provider value={{ user, setUser, serverUrl }}>

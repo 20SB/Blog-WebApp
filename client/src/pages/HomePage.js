@@ -13,29 +13,64 @@ const style = {
 };
 export const HomePage = () => {
     const [posts, setPosts] = useState([]); // State to store posts
-    const [loading, setLoading] = useState(false); // State to track loading status
     const [page, setPage] = useState(1); // State to track current page number
     const [hasMore, setHasMore] = useState(true);
 
     const { user, serverUrl } = AuthState();
     const toast = useGlobalToast();
-    const navigate = useNavigate();
-
-    const [items, setItems] = useState(Array.from({ length: 20 }));
-    const fetchMoreData = () => {
-        if (items.length >= 500) {
-            setHasMore(false);
-            return;
-        }
-        // a fake async api call like which sends
-        // 20 more records in .5 secs
-        setTimeout(() => {
-            setItems((prevItems) =>
-                prevItems.concat(Array.from({ length: 20 }))
-            );
-        }, 5000);
+    console.log("user", user);
+    const config = {
+        headers: {
+            Authorization: `Bearer ${user.token}`,
+        },
     };
+    console.log("total posts array", posts);
 
+    const fetchMoreData = () => {
+        axios
+            .get(`${serverUrl}/blog/all?page=${page}&limit=2`, config)
+            .then(({ data }) => {
+                console.log(`page-${page} posts`, data);
+                let newPosts = data.blogs;
+
+                // if newPosts array size is 0 then  there are no more posts left
+                if (newPosts.length <= 0) {
+                    setHasMore(false);
+                } else {
+                    setPosts((prevPosts) => [
+                        ...prevPosts,
+                        ...newPosts,
+                    ]);
+                    setPage((prevPage) => prevPage + 1);
+                }
+            })
+            .catch((error) => {
+                toast.error(
+                    "Error",
+                    error.response
+                        ? error.response.data.message
+                        : "Something Went Wrong"
+                );
+            });
+    };
+    useEffect(() => {
+        axios
+            .get(`${serverUrl}/blog/all?page=1&limit=2`, config)
+            .then(({ data }) => {
+                let newPosts = data.blogs;
+                console.log("newPosts", newPosts);
+                setPosts(newPosts);
+                setPage(2);
+            })
+            .catch((error) => {
+                toast.error(
+                    "Error",
+                    error.response
+                        ? error.response.data.message
+                        : "Something Went Wrong"
+                );
+            });
+    }, []);
     return (
         <div style={{ width: "100%" }}>
             <Box
@@ -98,7 +133,7 @@ export const HomePage = () => {
                         ))}
                     </InfiniteScroll> */}
                     <InfiniteScroll
-                        dataLength={items.length}
+                        dataLength={posts.length}
                         next={fetchMoreData}
                         hasMore={hasMore}
                         loader={<h4>Loading...</h4>}
@@ -109,9 +144,20 @@ export const HomePage = () => {
                             </p>
                         }
                     >
-                        {items.map((_, index) => (
-                            <div style={style} key={index}>
-                                div - #{index}
+                        {posts.map((post, index) => (
+                            <div
+                                key={index}
+                                style={{ width: "100px" }}
+                            >
+                                <b>title</b> - {post.title}
+                                <br />
+                                <b>writer </b>- {post.title}
+                                <br />
+                                <b>title </b>- {post.content}
+                                <br />
+                                <b>title</b> - {post.createdAt}
+                                <br />
+                                <hr />
                             </div>
                         ))}
                     </InfiniteScroll>
