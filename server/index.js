@@ -37,5 +37,5 @@ app.use(
 app.use("/", require("./routes"));
 
 app.listen(port, () => {
-    console.log("hypesq Server runing on port: ", port);
+    console.log("Inkly Server runing on port: ", port);
 });
