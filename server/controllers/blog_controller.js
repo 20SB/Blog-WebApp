@@ -1,11 +1,21 @@
 const Blog = require("../models/blog");
+const awsS3 = require("../config/aws");
 
 // Function to add a new blog
 async function addBlog(req, res) {
     try {
         const { title, content } = req.body;
         const writer = req.user._id;
-        const newBlog = new Blog({ writer, title, content });
+
+        let image = "";
+        if (req.file) {
+            // console.log(req.file);
+            const fileType = "BLOG";
+            const data = await awsS3.upload(fileType, req.file);
+            image = data.Location;
+        }
+
+        const newBlog = new Blog({ writer, title, content, image });
         await newBlog.save();
         return res.status(201).json({
             message: "Blog added successfully",
@@ -85,7 +95,7 @@ async function getBlog(req, res) {
         const blogId = req.query.blogId;
         const blog = await Blog.findById(blogId).populate(
             "writer",
-            "name email"
+            "name email dp"
         );
         if (!blog) {
             return res
@@ -109,7 +119,8 @@ async function getAllBlogs(req, res) {
         const skip = (page - 1) * limit; // Calculate the number of documents to skip
 
         const blogs = await Blog.find()
-            .populate("writer", "name email")
+            .populate("writer", "name email dp")
+            .sort({ createdAt: -1 })
             .skip(skip) // Skip documents based on the calculated skip value
             .limit(limit); // Limit the number of documents returned
 

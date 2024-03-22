@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Avatar, Box, Text } from "@chakra-ui/react";
+import { Avatar, Box, Flex, Image, Text } from "@chakra-ui/react";
 import axios from "axios";
 import { AuthState } from "../context/AuthContext";
 import useGlobalToast from "../GlobalFunctions/toast";
 import { useNavigate } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component"; // Import InfiniteScroll component
+import convertTimestampToDuration from "../GlobalFunctions/timeDuration";
 const style = {
     height: 30,
     border: "1px solid green",
@@ -93,74 +94,81 @@ export const HomePage = () => {
                         lg: "3",
                     }}
                     bg={"white"}
-                    w={{ base: "100%", lg: "100%" }}
+                    w={"100%"}
                     borderRadius={"lg"}
                     borderWidth={"1px"}
                     boxSizing="border-box"
                     overflowY={"auto"}
                 >
-                    {/* <InfiniteScroll
-                        dataLength={posts.length}
-                        next={fetchMoreData}
-                        hasMore={true}
-                        loader={<p>Loading...</p>}
-                        endMessage={<p>Yay! You have seen it all</p>}
-                    >
-                        {posts.map((post, index) => (
-                            <Box
-                                key={index}
-                                width={"30%"}
-                                bg={"cyan"}
-                            >
-                                <Avatar
-                                    name={
-                                        post.writer &&
-                                        post.writer.name
-                                    }
-                                    src={
-                                        post.writer && post.writer.dp
-                                    }
-                                    size="md"
-                                />
-                                <Text>
-                                    {post.writer && post.writer.name}
-                                </Text>
-                                <Text>{post.createdAt}</Text>
-                                <Text>{post.updatedAt}</Text>
-                                <Text>{post.title}</Text>
-                                <Text>{post.content}</Text>
-                            </Box>
-                        ))}
-                    </InfiniteScroll> */}
-                    <InfiniteScroll
-                        dataLength={posts.length}
-                        next={fetchMoreData}
-                        hasMore={hasMore}
-                        loader={<h4>Loading...</h4>}
-                        height={400}
-                        endMessage={
-                            <p style={{ textAlign: "center" }}>
-                                <b>Yay! You have seen it all</b>
-                            </p>
-                        }
-                    >
-                        {posts.map((post, index) => (
-                            <div
-                                key={index}
-                                style={{ width: "100px" }}
-                            >
-                                <b>title</b> - {post.title}
-                                <br />
-                                <b>writer </b>- {post.title}
-                                <br />
-                                <b>title </b>- {post.content}
-                                <br />
-                                <b>title</b> - {post.createdAt}
-                                <br />
-                                <hr />
-                            </div>
-                        ))}
-                    </InfiniteScroll>
+                    <Box w={{ base: "100%", lg: "50%" }}>
+                        <InfiniteScroll
+                            dataLength={posts.length}
+                            next={fetchMoreData}
+                            hasMore={hasMore}
+                            loader={<h4>Loading...</h4>}
+                            height={"85vh"}
+                            endMessage={
+                                <p style={{ textAlign: "center" }}>
+                                    <b>Yay! You have seen it all</b>
+                                </p>
+                            }
+                        >
+                            {posts.map((post, index) => (
+                                <Box
+                                    key={index}
+                                    p={{
+                                        base: "1",
+                                        md: "10px",
+                                    }}
+                                    border={"1px solid gray"}
+                                    borderRadius={"lg"}
+                                    m={2}
+                                >
+                                    <Flex mb={2}>
+                                        <Avatar
+                                            size="md"
+                                            name={post.writer.name}
+                                            src={post.writer.dp}
+                                        />
+                                        <Flex
+                                            direction="column"
+                                            ml="2"
+                                        >
+                                            <Text>
+                                                {post.writer.name}
+                                            </Text>
+                                            <Text>
+                                                {convertTimestampToDuration(
+                                                    post.createdAt
+                                                )}
+                                            </Text>
+                                        </Flex>
+                                    </Flex>
+                                    <Flex
+                                        w={"100%"}
+                                        justifyContent={"center"}
+                                        fontWeight={600}
+                                        fontFamily={"-moz-initial"}
+                                        fontSize={"xl"}
+                                        textAlign={"center"}
+                                    >
+                                        {post.title}
+                                    </Flex>
+                                    {post.image && (
+                                        <Box width={"100%"} p={2}>
+                                            <Image
+                                                src={post.image}
+                                                borderRadius={"xl"}
+                                            />
+                                        </Box>
+                                    )}
+                                    <Box textAlign={"center"}>
+                                        {post.content}
+                                    </Box>
+                                </Box>
+                            ))}
+                        </InfiniteScroll>
+                    </Box>
                 </Box>
             </Box>
         </div>
